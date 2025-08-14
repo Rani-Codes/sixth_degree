@@ -12,4 +12,4 @@ Cuz I thought it was a cool idea after watching the movie and because I am curre
 ### Role of Go?
 Go will be used extensively in this project. I will create a Go script that uses the Wikipedia API to fetch all the links from the pages of the people on the seed list. Additionally I will write a Go program that starts up and loads the entire JSON graph into memory. Write BFS in Go. Create an API to call the BFS function.
 
-Seed list: A list of well connected individuals sourced from Times 100, and Nobel Peace Prize winners from the last decade as well as all U.S. presidents. 
+Seed list: A list of well connected individuals sourced from Times 100, and all U.S. presidents. 
