@@ -29,13 +29,6 @@ type WorkerPool struct {
 	done       chan bool
 }
 
-//Producer Goroutine(1)
-//Must haves:
-// ├── Read unique_names.txt line by line
-// ├── Create JobRequest for each name
-// ├── Send to jobs channel
-// └── Close jobs channel when done
-
 // Constructor that initializes WorkerPool struct
 func NewWorkerPool(numWorkers int, rateLimit time.Duration, validNames map[string]bool) *WorkerPool {
 	return &WorkerPool{
@@ -74,3 +67,29 @@ func (wp *WorkerPool) Producer(filename string) {
 	}
 
 }
+
+func (wp *WorkerPool) Worker() {
+	// Loop ends automatically when Producer closes job channel
+	for job := range wp.jobs {
+		links, err := FetchAllLinks(job.Name)
+
+		var validConnections []string
+		for _, link := range links {
+			if wp.validNames[link] {
+				validConnections = append(validConnections, link)
+			}
+		}
+
+		res := JobResult{
+			Name:        job.Name,
+			Connections: validConnections,
+			Error:       err,
+			ID:          job.ID,
+		}
+
+		time.Sleep(wp.rateLimit)
+		wp.results <- res
+	}
+}
+
+// TODO: Add a way to close results channel using sync.WaitGroup
