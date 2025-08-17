@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sync"
 )
 
 type JobRequest struct {
@@ -24,6 +25,7 @@ type WorkerPool struct {
 	results    chan JobResult
 	done       chan bool
 	totalJobs  int
+	wg         sync.WaitGroup
 }
 
 // Constructor that initializes WorkerPool struct
@@ -47,7 +49,7 @@ func (wp *WorkerPool) Producer(filename string) {
 
 	scanner := bufio.NewScanner(file)
 
-	// Reads file line by line, scanner. Scan returns True if there's a file left to read
+	// Reads file line by line, scanner. Scan returns true if there's a file left to read
 	count := 0
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -66,6 +68,8 @@ func (wp *WorkerPool) Producer(filename string) {
 }
 
 func (wp *WorkerPool) Worker() {
+	defer wp.wg.Done() //Signals this worker is done
+
 	// Loop ends automatically when Producer closes job channel
 	for job := range wp.jobs {
 		links, err := FetchAllLinks(job.Name)
@@ -87,13 +91,12 @@ func (wp *WorkerPool) Worker() {
 	}
 }
 
-// TODO: Add a way to close results channel using sync.WaitGroup
-
 func (wp *WorkerPool) Aggregator() {
 
 	graph := make(map[string][]string)
 	processed := 0
 
+	// Will wrap up when Run function closes results channel
 	for res := range wp.results {
 		graph[res.Name] = res.Connections
 		processed++
@@ -117,4 +120,23 @@ func (wp *WorkerPool) Aggregator() {
 	}
 
 	wp.done <- true
+}
+
+// Orchestration function, sets up goroutines (starts the metaphorical assembly line)
+func (wp *WorkerPool) Run(filename string) {
+	go wp.Producer(filename)
+	go wp.Aggregator()
+
+	for i := 0; i < wp.numWorkers; i++ {
+		wp.wg.Add(1) // Add 1 more to the WaitGroup
+		go wp.Worker()
+	}
+
+	// Separate goroutine waits for all workers to finish then closes results channel
+	go func() {
+		wp.wg.Wait()      // Wait until all workers signal done
+		close(wp.results) // Once wait done now it's safe to close results channel
+	}()
+
+	<-wp.done
 }
