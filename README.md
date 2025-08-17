@@ -14,4 +14,6 @@ Cuz I thought it was a cool idea after watching the movie and because I am curre
 ### Role of Go?
 Go will be used extensively in this project. I will create a Go script that uses the Wikipedia API to fetch all the links from the pages of the people on the seed list. Additionally I will write a Go program that starts up and loads the entire JSON graph into memory. Write BFS in Go. Create an API to call the BFS function.
 
-Seed list: A list of well connected individuals sourced from Times100: The Most Influential People of 2025 and 2024, and all U.S. presidents
+## Dataset: +10k Influential Figures
+
+A comprehensive collection spanning Nobel laureates, Forbes billionaires, Olympic medalists, Academy Award winners, world leaders, Supreme Court Justices, and Hall of Fame inductees. This diverse dataset ensures robust connectivity patterns across domains—from ancient philosophers to modern tech entrepreneurs—creating an ideal foundation for pathfinding analysis.
