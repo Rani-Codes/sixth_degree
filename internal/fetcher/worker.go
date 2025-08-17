@@ -24,7 +24,6 @@ type WorkerPool struct {
 	jobs       chan JobRequest
 	results    chan JobResult
 	done       chan bool
-	totalJobs  int
 	wg         sync.WaitGroup
 }
 
@@ -36,7 +35,6 @@ func NewWorkerPool(numWorkers int, validNames map[string]bool) *WorkerPool {
 		jobs:       make(chan JobRequest, 100),
 		results:    make(chan JobResult, 100),
 		done:       make(chan bool),
-		totalJobs:  0,
 	}
 }
 
@@ -50,15 +48,12 @@ func (wp *WorkerPool) Producer(filename string) {
 	scanner := bufio.NewScanner(file)
 
 	// Reads file line by line, scanner. Scan returns true if there's a file left to read
-	count := 0
 	for scanner.Scan() {
 		line := scanner.Text()
-		count += 1
 		request := JobRequest{Name: line}
 		wp.jobs <- request
 	}
 
-	wp.totalJobs = count
 	close(wp.jobs)
 
 	if err := scanner.Err(); err != nil {
@@ -101,7 +96,7 @@ func (wp *WorkerPool) Aggregator() {
 		graph[res.Name] = res.Connections
 		processed++
 
-		log.Printf("%d out of %d results processed", processed, wp.totalJobs)
+		log.Printf("%d results processed", processed)
 
 		if res.Error != nil {
 			log.Printf("Error on %s: %v", res.Name, res.Error)

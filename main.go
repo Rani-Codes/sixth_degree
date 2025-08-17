@@ -6,7 +6,7 @@ import (
 
 func main() {
 	validNames := fetcher.LoadValidNames("seed_names.txt")
-	pool := fetcher.NewWorkerPool(3, validNames)
+	pool := fetcher.NewWorkerPool(10, validNames)
 	pool.Run("seed_names.txt")
 
 }
