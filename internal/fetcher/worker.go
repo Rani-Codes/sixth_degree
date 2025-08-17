@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 )
 
 type JobRequest struct {
@@ -22,7 +21,6 @@ type JobResult struct {
 
 type WorkerPool struct {
 	numWorkers int
-	rateLimit  time.Duration
 	validNames map[string]bool
 	jobs       chan JobRequest
 	results    chan JobResult
@@ -30,10 +28,9 @@ type WorkerPool struct {
 }
 
 // Constructor that initializes WorkerPool struct
-func NewWorkerPool(numWorkers int, rateLimit time.Duration, validNames map[string]bool) *WorkerPool {
+func NewWorkerPool(numWorkers int, validNames map[string]bool) *WorkerPool {
 	return &WorkerPool{
 		numWorkers: numWorkers,
-		rateLimit:  rateLimit,
 		validNames: validNames,
 		jobs:       make(chan JobRequest, 100),
 		results:    make(chan JobResult, 100),
@@ -87,7 +84,6 @@ func (wp *WorkerPool) Worker() {
 			ID:          job.ID,
 		}
 
-		time.Sleep(wp.rateLimit)
 		wp.results <- res
 	}
 }
