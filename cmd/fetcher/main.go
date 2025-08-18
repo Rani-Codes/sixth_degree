@@ -1,5 +1,7 @@
 package main
 
+// Data collection: Creates graph.json so you can run main file within search subdirectory
+
 import (
 	"github.com/Rani-Codes/sixth_degree/internal/fetcher"
 )
