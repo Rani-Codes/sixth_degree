@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"github.com/Rani-Codes/sixth_degree/internal/graph"
 )
@@ -14,4 +15,12 @@ func main() {
 	}
 
 	log.Printf("Loaded graph with %d nodes\n", len(*g))
+
+	// Test a path
+	path, err := graph.FindShortestPath(*g, "Albert Einstein", "Neil Armstrong")
+	if err != nil {
+		log.Printf("Error: %v", err)
+	} else {
+		log.Printf("Path found: %s (length: %d)", strings.Join(path, " -> "), len(path))
+	}
 }
