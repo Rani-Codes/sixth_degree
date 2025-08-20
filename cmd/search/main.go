@@ -17,7 +17,7 @@ func main() {
 	log.Printf("Loaded graph with %d nodes\n", len(*g))
 
 	// Test a path
-	path, err := graph.FindShortestPath(*g, "Albert Einstein", "Neil Armstrong")
+	path, err := graph.FindShortestPath(*g, "Alexander the Great", "Taylor Swift")
 	if err != nil {
 		log.Printf("Error: %v", err)
 	} else {

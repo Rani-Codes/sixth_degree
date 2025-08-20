@@ -21,8 +21,8 @@ Go will be used extensively in this project. I will create a Go script that uses
 A comprehensive collection spanning Nobel laureates, Forbes billionaires, Olympic medalists, Academy Award winners, world leaders, Supreme Court Justices, and Hall of Fame inductees. This diverse dataset ensures robust connectivity patterns across domains—from ancient philosophers to modern tech entrepreneurs—creating an ideal foundation for pathfinding analysis.
 
 ## Usage
-1. `go run cmd/fetcher/main.go` - Generates graph.json from Wikipedia data (~3.4 minutes)
-<!-- 2. `go run search.go` - Run BFS searches on the generated graph -->
+1. `go run ./cmd/fetcher/main.go` - Generates graph.json from Wikipedia data (~3.4 minutes)
+2. `go run ./cmd/search/main.go` - Run BFS searches on the generated graph
 
 ## Engineering Challenges and Thoughts
 - Right now the graph.json file is 10MB which is small so it's manageable in memory but if I want to scale it up by a lot (100x) in the future I will need to implement a new way of loading the data.
