@@ -26,6 +26,10 @@ A comprehensive collection spanning Nobel laureates, Forbes billionaires, Olympi
 
 ## Engineering Challenges and Thoughts
 - Right now the graph.json file is 10MB which is small so it's manageable in memory but if I want to scale it up by a lot (100x) in the future I will need to implement a new way of loading the data.
+- When choosing the websocket determination I chose to go with the Gorilla Websocket approach over the standard library for a few reasons.
+    1. The standard library seemed very complex for websockets causing me to focus on protocal setup over understanding websocket concepts.
+    2. In the Golang community Gorilla is the industry standard when it comes to implementing websockets.
+
 
 
 ## New features??
