@@ -11,7 +11,7 @@ func FindShortestPath(graph models.Graph, startNode, endNode string, updateCallb
 	queue := []string{startNode}
 	parent := make(map[string]string)           // using make to get an empty map (to be filled later)
 	visited := map[string]bool{startNode: true} // literal definition since we have default content
-	level := 0
+	level := 1
 
 	// New concept learned, Go’s comma-ok idiom (useful for safe lookup on maps)
 	//	ok returns true if the key exists in the map otherwise exits with error of what went wrong
