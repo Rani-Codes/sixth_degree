@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/Rani-Codes/sixth_degree/internal/graph"
 	"github.com/Rani-Codes/sixth_degree/models"
@@ -18,14 +17,6 @@ func main() {
 	}
 
 	log.Printf("Loaded graph with %d nodes\n", len(*g))
-
-	// Test a path
-	path, err := graph.FindShortestPath(*g, "Jesus", "Cristiano Ronaldo", nil)
-	if err != nil {
-		log.Printf("Error: %v", err)
-	} else {
-		log.Printf("Path found: %s (length: %d)", strings.Join(path, " -> "), len(path))
-	}
 
 	// Register WebSocket handler for /ws endpoint
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
