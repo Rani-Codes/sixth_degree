@@ -43,7 +43,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func handleWebSocket(w http.ResponseWriter, r *http.Request, graph models.Graph) {
+func handleWebSocket(w http.ResponseWriter, r *http.Request, g models.Graph) {
 	// Upgrades the HTTP server connection to the WebSocket protocol.
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -53,6 +53,42 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, graph models.Graph)
 	defer conn.Close()
 
 	for {
+		var request models.WSRequest
+		err := conn.ReadJSON(&request)
+		if err != nil {
+			log.Printf("Error reading message: %v", err)
+			break // If client disconnected or sent invalid JSON -> exit for loop
+		}
 
+		// This sends updates via WebSocket as the BFS algo runs
+		updateCallBack := func(level int, node string) {
+			response := models.WSResponse{
+				Type: "node_explored",
+				Data: models.NodeExplored{
+					Level: level,
+					Node:  node,
+				},
+			}
+			conn.WriteJSON(response)
+		}
+
+		path, err := graph.FindShortestPath(g, request.StartNode, request.EndNode, updateCallBack)
+
+		if err != nil {
+			response := models.WSResponse{
+				Type: "error",
+				Data: err.Error(), // Send error as a string
+			}
+			conn.WriteJSON(response)
+		} else {
+			response := models.WSResponse{
+				Type: "path_found",
+				Data: models.PathFound{
+					Path:   path,
+					Length: len(path),
+				},
+			}
+			conn.WriteJSON(response)
+		}
 	}
 }
