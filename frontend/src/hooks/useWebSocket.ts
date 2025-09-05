@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { LogMessage, SearchParams, WebSocketMessage } from '../types';
-import { findPath, PEOPLE } from '../data/people';
+import { LogMessage, SearchParams, WebSocketMessage, WebSocketRequest, NodeExploredData, PathFoundData } from '../types';
 
 export const useWebSocket = () => {
   const [messages, setMessages] = useState<LogMessage[]>([]);
@@ -22,15 +21,24 @@ export const useWebSocket = () => {
 
   const handleWebSocketMessage = useCallback((data: WebSocketMessage) => {
     switch (data.type) {
-      case 'NODE_EXPLORED':
-        if (data.node_name) {
-          addLogMessage(`Explored: ${data.node_name}`, 'info');
+      case 'node_explored':
+        const nodeData = data.data as NodeExploredData;
+        if (nodeData.node) {
+          addLogMessage(`Level ${nodeData.level}: Explored ${nodeData.node}`, 'info');
+          setExploredNodes(prev => [...prev, nodeData.node]);
         }
         break;
-      case 'PATH_FOUND':
-        if (data.path && Array.isArray(data.path)) {
-          addLogMessage(`Path found: ${data.path.join(' → ')}`, 'success');
+      case 'path_found':
+        const pathData = data.data as PathFoundData;
+        if (pathData.path && Array.isArray(pathData.path)) {
+          addLogMessage(`Path found: ${pathData.path.join(' → ')} (${pathData.length} steps)`, 'success');
+          setActivePath(pathData.path);
         }
+        setIsSearching(false);
+        break;
+      case 'error':
+        const errorMessage = data.data as string;
+        addLogMessage(`Error: ${errorMessage}`, 'error');
         setIsSearching(false);
         break;
       default:
@@ -39,59 +47,16 @@ export const useWebSocket = () => {
   }, [addLogMessage]);
 
   const connectAndSearch = useCallback((searchParams: SearchParams) => {
-    // TODO: Remove this hardcoded simulation and replace with actual WebSocket connection
-    // This is temporary demo code that simulates the pathfinding process
-    
-    const startPerson = PEOPLE.find(p => p.name === searchParams.from);
-    const endPerson = PEOPLE.find(p => p.name === searchParams.to);
-    
-    if (!startPerson || !endPerson) {
-      addLogMessage('Invalid start or end person', 'error');
-      return;
+    // Close existing connection if any
+    if (wsRef.current) {
+      wsRef.current.close();
     }
 
-    // Close existing connection if any
+    // Reset state
     setExploredNodes([]);
     setActivePath([]);
     setMessages([]);
     setIsSearching(true);
-    setIsConnected(true);
-
-    addLogMessage('Connected to pathfinding server', 'success');
-    addLogMessage(`Searching path from ${searchParams.from} to ${searchParams.to}...`, 'info');
-
-    // Simulate pathfinding with delays
-    const path = findPath(startPerson.id, endPerson.id);
-    const allExplored: string[] = [];
-    
-    // Simulate exploration
-    const simulateExploration = (nodeIndex: number) => {
-      if (nodeIndex >= path.length) {
-        // Show final path
-        setActivePath(path);
-        const pathNames = path.map(id => PEOPLE.find(p => p.id === id)?.name).filter(Boolean);
-        addLogMessage(`Path found: ${pathNames.join(' → ')}`, 'success');
-        setIsSearching(false);
-        return;
-      }
-      
-      const nodeId = path[nodeIndex];
-      const nodeName = PEOPLE.find(p => p.id === nodeId)?.name;
-      
-      allExplored.push(nodeId);
-      setExploredNodes([...allExplored]);
-      addLogMessage(`Explored: ${nodeName}`, 'info');
-      
-      setTimeout(() => simulateExploration(nodeIndex + 1), 800);
-    };
-    
-    setTimeout(() => simulateExploration(0), 500);
-
-    /* TODO: Replace the above simulation with actual WebSocket code:
-
-    if (wsRef.current) {
-      wsRef.current.close();
-    }
 
     try {
       const ws = new WebSocket('ws://localhost:8080/ws');
@@ -101,12 +66,12 @@ export const useWebSocket = () => {
         setIsConnected(true);
         addLogMessage('Connected to pathfinding server', 'success');
         
-        // Send search payload immediately on connection open
-        const payload = {
-          from: searchParams.from,
-          to: searchParams.to
+        // Send search request to Go backend
+        const request: WebSocketRequest = {
+          startNode: searchParams.from,
+          endNode: searchParams.to
         };
-        ws.send(JSON.stringify(payload));
+        ws.send(JSON.stringify(request));
         addLogMessage(`Searching path from ${searchParams.from} to ${searchParams.to}...`, 'info');
       };
 
@@ -124,6 +89,7 @@ export const useWebSocket = () => {
         console.error('WebSocket error:', error);
         addLogMessage('Connection error occurred', 'error');
         setIsSearching(false);
+        setIsConnected(false);
       };
 
       ws.onclose = (event) => {
@@ -141,18 +107,15 @@ export const useWebSocket = () => {
       console.error('Failed to create WebSocket connection:', error);
       addLogMessage('Failed to connect to server', 'error');
       setIsSearching(false);
+      setIsConnected(false);
     }
-    */
-  }, [addLogMessage]);
+  }, [addLogMessage, handleWebSocketMessage]);
 
   const disconnect = useCallback(() => {
-    // TODO: Uncomment when using real WebSocket
-    /*
     if (wsRef.current) {
       wsRef.current.close(1000);
       wsRef.current = null;
     }
-    */
     setIsConnected(false);
     setIsSearching(false);
     setExploredNodes([]);
