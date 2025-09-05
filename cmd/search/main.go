@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Rani-Codes/sixth_degree/internal/graph"
+	"github.com/Rani-Codes/sixth_degree/internal/handlers"
 	"github.com/Rani-Codes/sixth_degree/models"
 	"github.com/gorilla/websocket"
 )
@@ -18,10 +19,16 @@ func main() {
 
 	log.Printf("Loaded graph with %d nodes\n", len(*g))
 
+	// Initialize people handler with the graph
+	peopleHandler := handlers.NewPeopleHandler(*g)
+
 	// Register WebSocket handler for /ws endpoint
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		handleWebSocket(w, r, *g)
 	})
+
+	// Register GET route for available people
+	http.HandleFunc("/api/people", peopleHandler.HandleGetPeople)
 
 	// Start HTTP server
 	log.Println("WebSocket server starting on :8080")
