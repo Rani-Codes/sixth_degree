@@ -46,9 +46,11 @@ func (h *PeopleHandler) HandleGetPeople(w http.ResponseWriter, r *http.Request) 
 
 	var limit int
 	if query == "" {
-		limit = 500 // Show more options when browsing all names
+		// Return all people when browsing without a query
+		limit = len(h.sortedNames)
 	} else {
-		limit = 50 // Limit for faster filtering when typing
+		// Keep a tighter limit when filtering to keep responses snappy while typing
+		limit = 50
 	}
 
 	// Initialize with empty slice to ensure JSON returns [] instead of null

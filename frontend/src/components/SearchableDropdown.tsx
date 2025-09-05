@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Person } from '../types';
 import { usePeopleSearch } from '../services/api';
@@ -21,6 +21,8 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const { data: options = [], isLoading, error } = usePeopleSearch(searchTerm);
 
@@ -35,6 +37,14 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Reset pagination when results or query change
+  useEffect(() => {
+    setVisibleCount(50);
+    if (listRef.current) {
+      listRef.current.scrollTop = 0;
+    }
+  }, [options, searchTerm]);
 
   const handleInputClick = () => {
     setIsOpen(!isOpen);
@@ -54,6 +64,16 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
     setSearchTerm(newSearchTerm);
     if (!isOpen) setIsOpen(true);
   };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 16;
+    if (nearBottom && visibleCount < options.length) {
+      setVisibleCount((prev) => Math.min(prev + 50, options.length));
+    }
+  };
+
+  const visibleOptions = useMemo(() => options.slice(0, visibleCount), [options, visibleCount]);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -85,7 +105,11 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
         </div>
 
         {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+          <div
+            ref={listRef}
+            onScroll={handleScroll}
+            className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto"
+          >
             {isLoading ? (
               <div className="px-4 py-3 text-gray-400 text-center">
                 Searching...
@@ -95,7 +119,7 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                 Error loading results
               </div>
             ) : options.length > 0 ? (
-              options.map((person, index) => (
+              visibleOptions.map((person, index) => (
                 <div
                   key={person.name + index}
                   onClick={() => handleOptionSelect(person)}
