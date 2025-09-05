@@ -54,22 +54,22 @@ function AppContent() {
       <div className="max-w-7xl mx-auto px-4 space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
+          <div className="flex flex-col-reverse gap-4 sm:flex-row sm:gap-0 items-center justify-center space-x-3 mb-4">
             <Network className="w-10 h-10 text-blue-400" />
             <h1 className="text-4xl font-bold text-gray-100">
-              Web Pathfinder
+              Six Degrees of Wikipedia
             </h1>
           </div>
           <p className="text-lg text-gray-400 mb-2">
-            Navigate the interconnected web of relationships
+            Explore the threads that tie us together
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Left Column - Controls */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             <SearchBar
               startPerson={startPerson}
               endPerson={endPerson}
@@ -86,7 +86,7 @@ function AppContent() {
           </div>
 
           {/* Right Column - Visualization */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <NetworkVisualization
               activePath={activePath}
               exploredNodes={exploredNodes}
@@ -98,8 +98,8 @@ function AppContent() {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-gray-500 text-sm">
-            Real-time pathfinding algorithm visualization
+          <p className="text-gray-400 text-sm">
+            While watching the film <em>Six Degrees of Separation</em> I came across the idea that any two people are connected by no more than six "friend of a friend" relationships. Curious, I wanted to see if that really held up. I used Wikipedia pages to test connections. It is not perfect, but since most notable people have a page it works well enough. The list I used has over ten thousand names, a small slice of the world but large enough to build some interesting visualizations. I also built this project to sharpen my Golang skills, working with goroutines, websocket connections, and writing my own BFS algorithm.
           </p>
         </div>
       </div>
