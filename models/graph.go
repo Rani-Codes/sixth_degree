@@ -37,3 +37,7 @@ type PathFound struct {
 	Path   []string `json:"path"`
 	Length int      `json:"length"`
 }
+
+type Person struct {
+	Name string `json:"name"`
+}

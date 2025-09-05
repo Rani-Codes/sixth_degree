@@ -4,7 +4,6 @@ import { SearchableDropdown } from './SearchableDropdown';
 import { Person } from '../types';
 
 interface SearchBarProps {
-  people: Person[];
   startPerson: Person | null;
   endPerson: Person | null;
   onStartPersonChange: (person: Person | null) => void;
@@ -14,7 +13,6 @@ interface SearchBarProps {
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
-  people,
   startPerson,
   endPerson,
   onStartPersonChange,
@@ -33,7 +31,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <SearchableDropdown
           label="Start Person"
-          options={people}
           value={startPerson}
           onChange={onStartPersonChange}
           placeholder="Select start..."
@@ -41,7 +38,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         
         <SearchableDropdown
           label="End Person"
-          options={people}
           value={endPerson}
           onChange={onEndPersonChange}
           placeholder="Select end..."

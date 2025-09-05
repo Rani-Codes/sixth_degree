@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Person } from '../types';
+import { usePeopleSearch } from '../services/api';
 
 interface SearchableDropdownProps {
   label: string;
-  options: Person[];
   value: Person | null;
   onChange: (person: Person | null) => void;
   placeholder?: string;
 }
 
+// using server-side search
 export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   label,
-  options,
   value,
   onChange,
   placeholder = "Select a person..."
@@ -22,9 +22,7 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredOptions = options.filter(option =>
-    option.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const { data: options = [], isLoading, error } = usePeopleSearch(searchTerm);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,7 +50,8 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
     if (!isOpen) setIsOpen(true);
   };
 
@@ -87,10 +86,18 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
 
         {isOpen && (
           <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto">
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((person) => (
+            {isLoading ? (
+              <div className="px-4 py-3 text-gray-400 text-center">
+                Searching...
+              </div>
+            ) : error ? (
+              <div className="px-4 py-3 text-red-400 text-center">
+                Error loading results
+              </div>
+            ) : options.length > 0 ? (
+              options.map((person, index) => (
                 <div
-                  key={person.id}
+                  key={person.name + index}
                   onClick={() => handleOptionSelect(person)}
                   className="px-4 py-3 hover:bg-gray-700 cursor-pointer transition-colors duration-150 border-b border-gray-700 last:border-b-0"
                 >

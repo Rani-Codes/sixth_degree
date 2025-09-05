@@ -1,9 +1,5 @@
 export interface Person {
-    id: string;
     name: string;
-    x: number;
-    y: number;
-    connections: string[];
   }
   
   export interface SearchParams {

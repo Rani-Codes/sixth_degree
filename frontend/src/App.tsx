@@ -1,13 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SearchBar } from './components/SearchBar';
 import { LogViewer } from './components/LogViewer';
 import { NetworkVisualization } from './components/NetworkVisualization';
 import { useWebSocket } from './hooks/useWebSocket';
 import { Person, SearchParams } from './types';
-import { PEOPLE } from './data/people';
 import { Network } from 'lucide-react';
 
-function App() {
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000,   // 10 minutes
+    },
+  },
+});
+
+function AppContent() {
   const [startPerson, setStartPerson] = useState<Person | null>(null);
   const [endPerson, setEndPerson] = useState<Person | null>(null);
   
@@ -61,7 +71,6 @@ function App() {
           {/* Left Column - Controls */}
           <div className="lg:col-span-1 space-y-6">
             <SearchBar
-              people={PEOPLE}
               startPerson={startPerson}
               endPerson={endPerson}
               onStartPersonChange={setStartPerson}
@@ -81,8 +90,8 @@ function App() {
             <NetworkVisualization
               activePath={activePath}
               exploredNodes={exploredNodes}
-              startPersonId={startPerson?.id}
-              endPersonId={endPerson?.id}
+              startPersonId={startPerson?.name}
+              endPersonId={endPerson?.name}
             />
           </div>
         </div>
@@ -95,6 +104,14 @@ function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppContent />
+    </QueryClientProvider>
   );
 }
 
