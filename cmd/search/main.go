@@ -19,16 +19,18 @@ func main() {
 
 	log.Printf("Loaded graph with %d nodes\n", len(*g))
 
-	// Initialize people handler with the graph
+	// Initialize handlers with the graph
 	peopleHandler := handlers.NewPeopleHandler(*g)
+	graphHandler := handlers.NewGraphHandler(*g)
 
 	// Register WebSocket handler for /ws endpoint
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		handleWebSocket(w, r, *g)
 	})
 
-	// Register GET route for available people
+	// Register GET routes
 	http.HandleFunc("/api/people", peopleHandler.HandleGetPeople)
+	http.HandleFunc("/api/graph", graphHandler.HandleGetGraph)
 
 	// Start HTTP server
 	log.Println("WebSocket server starting on :8080")

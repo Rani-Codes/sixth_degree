@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
-import { Person } from '../types';
+import { Person, AdjacencyMap } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -50,3 +50,18 @@ export const usePeopleSearch = (query: string, delay: number = 300) => {
 
 // Export the fetch function in case it's needed elsewhere
 export { fetchPeople };
+
+// API function to fetch full graph adjacency map
+export const fetchGraph = async (): Promise<AdjacencyMap> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/graph`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const graph: AdjacencyMap = await response.json();
+    return graph;
+  } catch (error) {
+    console.error('Failed to fetch graph:', error);
+    throw new Error('Failed to fetch graph from server');
+  }
+};

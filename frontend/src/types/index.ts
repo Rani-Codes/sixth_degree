@@ -42,3 +42,6 @@ export interface WebSocketRequest {
     isActive?: boolean;
     isPath?: boolean;
   }
+
+// Adjacency map type received from /api/graph
+export type AdjacencyMap = Record<string, string[]>;
