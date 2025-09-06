@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Demo.gif" alt="Demo" width="75%" />
+</p>
+
 # Six Degrees of Wikipedia
 
 This project is inspired by the film "Six Degrees of Separation (1993)". 
@@ -29,7 +33,9 @@ A comprehensive collection spanning Nobel laureates, Forbes billionaires, Olympi
 - When choosing the websocket determination I chose to go with the Gorilla Websocket approach over the standard library for a few reasons.
     1. The standard library seemed very complex for websockets causing me to focus on protocal setup over understanding websocket concepts.
     2. In the Golang community Gorilla is the industry standard when it comes to implementing websockets.
-
+- Creating a way to visualize the BFS algorithm on the frontend proved to be kinda challenging. At first I was rendering all 10 thousand plus nodes and creating a spiderweb to connect all of them but quickly I realized this was insane because it would take forever to load and be really laggy. Then I moved on to only rendering the nodes explored using React Konva. Idk if it was my lack of skill or just a bad tool for the job but this was also very laggy. Finally I switched to using graphology to handle graph data modeling and sigma.js to handle graph rendering & interactions. This worked pretty well so I stuck with it.
+    1. An issue I ran into was having the final path not really visible amidst the thousdands of explored nodes. To solve this I made the nodes bigger, changed their colors, and I also artificially spaced them apart to demonstrate the path even when the user is zoomed out.
+    2. A bug that drove me crazy was the nodes explored value in the top right. Sometimes this would disappear randomly and would not come back when a new request was made. The only way I found I could get it to return was through refreshing the page. I've already wasted too much time on this, this bug stays in the code for now.
 
 
 ## New features??
