@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Demo.gif" alt="Demo" width="75%" />
+  <img src="Demo.gif" alt="Demo" width="100%" />
 </p>
 
 # Six Degrees of Wikipedia
