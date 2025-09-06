@@ -25,6 +25,13 @@ Go will be used extensively in this project. I will create a Go script that uses
 A comprehensive collection spanning Nobel laureates, Forbes billionaires, Olympic medalists, Academy Award winners, world leaders, Supreme Court Justices, and Hall of Fame inductees. This diverse dataset ensures robust connectivity patterns across domains—from ancient philosophers to modern tech entrepreneurs—creating an ideal foundation for pathfinding analysis.
 
 ## Usage
+***To use locally***  
+Make sure you first have docker installed and it is running on your computer.
+1. `docker build -t sixth-degree . ` - Generates the docker image.
+2. `docker run --rm -p 8080:8080 sixth-degree` - Runs the image locally on a docker container
+
+***Other helpful commands***  
+You may want to use if you run this yourself outside of a docker container.
 1. `go run ./cmd/fetcher/main.go` - Generates graph.json from Wikipedia data (~3.4 minutes)
 2. `go run ./cmd/search/main.go` - Run BFS searches on the generated graph
 3. `cd frontend && npm install && npm run dev` - Runs the frontend
