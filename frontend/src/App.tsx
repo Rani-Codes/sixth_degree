@@ -49,6 +49,12 @@ function AppContent() {
     };
   }, [disconnect]);
 
+  // Force page to scroll to the top on reload (fixes bug where page focuses on network visualization on reload)
+  useEffect(() => {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 py-8">
       <div className="max-w-7xl mx-auto px-4 space-y-8">
