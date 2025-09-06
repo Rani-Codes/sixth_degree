@@ -1,0 +1,30 @@
+# Version Control System (VCS)
+.git
+.gitignore
+
+# Editor/OS
+.DS_Store
+.idea/
+.vscode/
+
+# Node / Frontend artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+**/*.log
+logs/
+
+# Go build artifacts (if any)
+bin/
+out/
+tmp/
+*.cache
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Large assets not needed in image
+Demo.gif
+
