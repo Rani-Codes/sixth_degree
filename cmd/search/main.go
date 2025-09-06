@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/Rani-Codes/sixth_degree/internal/graph"
 	"github.com/Rani-Codes/sixth_degree/internal/handlers"
@@ -32,8 +34,32 @@ func main() {
 	http.HandleFunc("/api/people", peopleHandler.HandleGetPeople)
 	http.HandleFunc("/api/graph", graphHandler.HandleGetGraph)
 
+	// Show the built website from ./dist. If we can't find a file, show index.html
+	// Works in Docker and also if you ran `npm run build` locally
+	// For everyday coding, use `npm run dev` on 5173 (fast reloads)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Let API and WS handlers take priority; this catches everything else
+		// Why? Because in Go’s default ServeMux, the most specific pattern wins (/ws before / route)
+		requested := r.URL.Path
+		if requested == "/" {
+			// If user asked for the home page, send the main HTML file
+			requested = "/index.html"
+		}
+		// Clean the path and look for it inside the "dist" folder
+		requested = filepath.Clean(requested)
+		fullPath := filepath.Join("dist", requested)
+
+		// If the file exists (JS, CSS, images), send it
+		if info, err := os.Stat(fullPath); err == nil && !info.IsDir() {
+			http.ServeFile(w, r, fullPath)
+			return
+		}
+		// Otherwise send index.html so the front‑end router (React) can handle the page
+		http.ServeFile(w, r, filepath.Join("dist", "index.html"))
+	})
+
 	// Start HTTP server
-	log.Println("WebSocket server starting on :8080")
+	log.Println("Server starting on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
