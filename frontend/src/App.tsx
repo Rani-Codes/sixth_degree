@@ -99,7 +99,10 @@ function AppContent() {
         {/* Footer */}
         <div className="text-center">
           <p className="text-gray-400 text-sm">
-            While watching the film <em>Six Degrees of Separation</em> I came across the idea that any two people are connected by no more than six "friend of a friend" relationships. Curious, I wanted to see if that really held up. I used Wikipedia pages to test connections. It is not perfect, but since most notable people have a page it works well enough. The list I used has over ten thousand names, a small slice of the world but large enough to build some interesting visualizations. I also built this project to sharpen my Golang skills, working with goroutines, websocket connections, and writing my own BFS algorithm.
+            While watching the film <em>Six Degrees of Separation</em> I came across the idea that any two people are connected by no more than six "friend of a friend" relationships. Curious, I wanted to see if that really held up. I used Wikipedia pages to test connections since all notable people have a page. It works well enough. I created a list of over ten thousand names, a small slice of the world but large enough to build some interesting visualizations. I also built this project to sharpen my Golang skills, working with goroutines, websocket connections, and writing my own BFS algorithm.
+          </p>
+          <p className="text-gray-400 text-sm">
+            Note: A connection exists if one person's Wikipedia page mentions another person from this list. They don't need to have met or interacted for the link to count.
           </p>
         </div>
       </div>

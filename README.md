@@ -27,6 +27,8 @@ A comprehensive collection spanning Nobel laureates, Forbes billionaires, Olympi
 ## Usage
 1. `go run ./cmd/fetcher/main.go` - Generates graph.json from Wikipedia data (~3.4 minutes)
 2. `go run ./cmd/search/main.go` - Run BFS searches on the generated graph
+3. `cd frontend && npm install && npm run dev` - Runs the frontend
+    - After the first run, you can skip install: `cd frontend && npm run dev`
 
 ## Engineering Challenges and Thoughts
 - Right now the graph.json file is 10MB which is small so it's manageable in memory but if I want to scale it up by a lot (100x) in the future I will need to implement a new way of loading the data.
