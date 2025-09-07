@@ -2,17 +2,26 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { Person, AdjacencyMap } from '../types';
 
-const API_BASE_URL = 'http://localhost:8080';
+// Prefer same-origin in prod; fall back to localhost:8080 when running Vite dev on 5173
+const DEFAULT_DEV_API_BASE = typeof window !== 'undefined' && window.location.port === '5173'
+  ? 'http://localhost:8080'
+  : '';
+const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL?.trim?.() || DEFAULT_DEV_API_BASE;
 
 // API function to fetch people
 const fetchPeople = async (query: string = ''): Promise<Person[]> => {
   try {
-    const url = new URL(`${API_BASE_URL}/api/people`);
-    if (query) {
-      url.searchParams.append('q', query);
+    let finalUrl: string;
+    if (API_BASE_URL) {
+      const url = new URL('/api/people', API_BASE_URL);
+      if (query) url.searchParams.append('q', query);
+      finalUrl = url.toString();
+    } else {
+      // same-origin
+      finalUrl = `/api/people${query ? `?q=${encodeURIComponent(query)}` : ''}`;
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(finalUrl);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -54,7 +63,13 @@ export { fetchPeople };
 // API function to fetch full graph adjacency map
 export const fetchGraph = async (): Promise<AdjacencyMap> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/graph`);
+    let url: string;
+    if (API_BASE_URL) {
+      url = new URL('/api/graph', API_BASE_URL).toString();
+    } else {
+      url = '/api/graph';
+    }
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

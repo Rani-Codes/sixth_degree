@@ -59,7 +59,13 @@ export const useWebSocket = () => {
     setIsSearching(true);
 
     try {
-      const ws = new WebSocket('ws://localhost:8080/ws');
+      // Build WS URL based on current origin; use dev fallback when running Vite on 5173
+      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      const protocol = isHttps ? 'wss' : 'ws';
+      const host = typeof window !== 'undefined' ? window.location.host : 'localhost:8080';
+      const isViteDev = typeof window !== 'undefined' && window.location.port === '5173';
+      const wsUrl = isViteDev ? 'ws://localhost:8080/ws' : `${protocol}://${host}/ws`;
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
