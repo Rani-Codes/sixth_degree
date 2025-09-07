@@ -47,8 +47,9 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   }, [options, searchTerm]);
 
   const handleInputClick = () => {
-    setIsOpen(!isOpen);
+    // Only open on click; don't toggle. Prevents double‑click from immediately closing.
     if (!isOpen) {
+      setIsOpen(true);
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
