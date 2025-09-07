@@ -35,4 +35,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/sixth_degree:v2025-09-07-2
+          tags: ${{ secrets.DOCKER_USERNAME }}/sixth_degree:v2025-09-07-3

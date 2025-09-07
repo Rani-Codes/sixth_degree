@@ -50,7 +50,8 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
     // Only open on click; don't toggle. Prevents double‑click from immediately closing.
     if (!isOpen) {
       setIsOpen(true);
-      setTimeout(() => inputRef.current?.focus(), 0);
+      // Focus immediately so mobile keyboards appear reliably
+      inputRef.current?.focus();
     }
   };
 
@@ -93,9 +94,9 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
               type="text"
               value={isOpen ? searchTerm : (value?.name || '')}
               onChange={handleInputChange}
+              onFocus={() => setIsOpen(true)}
               placeholder={placeholder}
               className="flex-1 outline-none bg-transparent text-gray-100 placeholder-gray-400"
-              readOnly={!isOpen}
             />
             <ChevronDown 
               className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
