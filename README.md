@@ -1,7 +1,7 @@
 <p align="center">
   <img src="Demo.gif" alt="Demo" width="100%" />
 </p>
-  
+   
 # Six Degrees of Wikipedia
 
 This project is inspired by the film "Six Degrees of Separation (1993)". 
