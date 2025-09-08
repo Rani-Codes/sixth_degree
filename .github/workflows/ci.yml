@@ -35,4 +35,20 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/sixth_degree:v2025-09-07-3
+          tags: ${{ secrets.DOCKER_USERNAME }}/sixth_degree:latest
+
+      # --- Authenticate with GCP using Workload Identity Federation ---
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      # --- Deploy to Cloud Run ---
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ secrets.GCP_RUN_SERVICE }} \
+            --image=${{ secrets.DOCKER_USERNAME }}/sixth_degree:latest \
+            --region=${{ secrets.GCP_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated
