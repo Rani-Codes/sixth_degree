@@ -65,9 +65,34 @@ export const fetchGraph = async (): Promise<AdjacencyMap> => {
   try {
     let url: string;
     if (API_BASE_URL) {
-      url = new URL('/api/graph', API_BASE_URL).toString();
+      const u = new URL('/api/graph', API_BASE_URL);
+      // Append reduced-data hint so backend can 204 early (occurs if low/medium data signal sent from client)
+      const navAny = typeof navigator !== 'undefined' ? (navigator as any) : undefined;
+      const conn = navAny?.connection;
+      const saveData = conn?.saveData === true;
+      const effType: string | undefined = conn?.effectiveType;
+      const slowConn = !!effType && ['slow-2g', '2g', '3g'].includes(effType);
+      const deviceMemory: number | undefined = navAny?.deviceMemory;
+      const lowMemory = typeof deviceMemory === 'number' && deviceMemory < 4;
+      const hw = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 0 : 0;
+      const lowCPU = hw > 0 && hw < 4;
+      if (saveData || slowConn || lowMemory || lowCPU) {
+        u.searchParams.set('mobileMode', '1');
+      }
+      url = u.toString();
     } else {
-      url = '/api/graph';
+      // same-origin
+      const navAny = typeof navigator !== 'undefined' ? (navigator as any) : undefined;
+      const conn = navAny?.connection;
+      const saveData = conn?.saveData === true;
+      const effType: string | undefined = conn?.effectiveType;
+      const slowConn = !!effType && ['slow-2g', '2g', '3g'].includes(effType);
+      const deviceMemory: number | undefined = navAny?.deviceMemory;
+      const lowMemory = typeof deviceMemory === 'number' && deviceMemory < 4;
+      const hw = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 0 : 0;
+      const lowCPU = hw > 0 && hw < 4;
+      const qs = (saveData || slowConn || lowMemory || lowCPU) ? '?mobileMode=1' : '';
+      url = `/api/graph${qs}`;
     }
     const response = await fetch(url);
     if (!response.ok) {

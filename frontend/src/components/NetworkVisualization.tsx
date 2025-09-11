@@ -37,6 +37,22 @@ export const NetworkVisualization: React.FC<NetworkVisualizationProps> = ({
   const PATH_ANGLE_STEP = 1.1; // radians per step for spiral spacing (more rotation)
   const nodePos = useRef<Map<string, { x: number; y: number }>>(new Map());
   const nodeLevel = useRef<Map<string, number>>(new Map());
+  
+  // Detect reduced-data conditions (mobile or desktop) to skip fetching full graph
+  const shouldSkipFullGraph = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const navAny = navigator as any;
+    const conn = navAny?.connection;
+    const saveData = conn?.saveData === true;
+    const effType: string | undefined = conn?.effectiveType;
+    const slowConn = !!effType && ['slow-2g', '2g', '3g'].includes(effType);
+    const deviceMemory: number | undefined = navAny?.deviceMemory;
+    const lowMemory = typeof deviceMemory === 'number' && deviceMemory < 4;
+    const hw = navigator.hardwareConcurrency || 0;
+    const lowCPU = hw > 0 && hw < 4;
+    const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    return (saveData || slowConn || lowMemory || lowCPU) && (isMobileUA || true);
+  }, []);
   const exploredCount = useMemo(() => {
     const s = new Set<string>();
     exploredNodes.forEach((n) => s.add(n));
@@ -66,11 +82,6 @@ export const NetworkVisualization: React.FC<NetworkVisualizationProps> = ({
   useEffect(() => {
     let disposed = false;
     const init = async () => {
-      // Fetch full adjacency once
-      const full = await fetchGraph();
-      if (disposed) return;
-      cacheGraph.current = full;
-
       // Init graphology + sigma
       const g = new Graph({ type: 'undirected', multi: false });
       graphRef.current = g;
@@ -91,6 +102,13 @@ export const NetworkVisualization: React.FC<NetworkVisualizationProps> = ({
         sigma.on('leaveNode', () => {
           setHover({ hoveredNode: null });
         });
+      }
+
+      // Optionally fetch full graph adjacency from api/graph (skip on low/medium-tier mobile)
+      if (!shouldSkipFullGraph) {
+        const full = await fetchGraph();
+        if (disposed) return;
+        cacheGraph.current = full;
       }
 
       // Seed start/end nodes for visibility
