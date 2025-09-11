@@ -24,7 +24,9 @@ export const useWebSocket = () => {
       case 'node_explored':
         const nodeData = data.data as NodeExploredData;
         if (nodeData.node) {
-          addLogMessage(`Level ${nodeData.level}: Explored ${nodeData.node}`, 'info');
+          const count = nodeData.nodesExploredAtLevel;
+          const suffix = typeof count === 'number' ? ` (nodes explored at level: ${count})` : '';
+          addLogMessage(`Level ${nodeData.level}: Path node ${nodeData.node}${suffix}`, 'info');
           setExploredNodes(prev => [...prev, nodeData.node]);
         }
         break;

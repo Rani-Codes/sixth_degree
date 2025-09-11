@@ -86,16 +86,14 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, g models.Graph) {
 			break // If client disconnected or sent invalid JSON -> exit for loop
 		}
 
-		// This sends updates via WebSocket as the BFS algo runs
+		// Collect per-level counts during BFS
+		levelCounts := make(map[int]int)
+		nodeLevel := make(map[string]int)
 		updateCallBack := func(level int, node string) {
-			response := models.WSResponse{
-				Type: "node_explored",
-				Data: models.NodeExplored{
-					Level: level,
-					Node:  node,
-				},
+			levelCounts[level]++
+			if _, ok := nodeLevel[node]; !ok {
+				nodeLevel[node] = level
 			}
-			conn.WriteJSON(response)
 		}
 
 		path, err := graph.FindShortestPath(g, request.StartNode, request.EndNode, updateCallBack)
@@ -107,6 +105,24 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, g models.Graph) {
 			}
 			conn.WriteJSON(response)
 		} else {
+			// Send one summary per level in the final path
+			for i := 0; i < len(path); i++ {
+				node := path[i]
+				lvl := i + 1
+				// This sets BFS true level once value known
+				if recorded, ok := nodeLevel[node]; ok {
+					lvl = recorded
+				}
+				count := levelCounts[lvl]
+				_ = conn.WriteJSON(models.WSResponse{
+					Type: "node_explored",
+					Data: models.NodeExplored{
+						Level:                lvl,
+						Node:                 node,
+						NodesExploredAtLevel: count,
+					},
+				})
+			}
 			response := models.WSResponse{
 				Type: "path_found",
 				Data: models.PathFound{

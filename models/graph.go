@@ -29,8 +29,9 @@ type WSResponse struct {
 
 // Response payloads
 type NodeExplored struct {
-	Level int    `json:"level"`
-	Node  string `json:"node"`
+	Level                int    `json:"level"`
+	Node                 string `json:"node"`
+	NodesExploredAtLevel int    `json:"nodesExploredAtLevel,omitempty"`
 }
 
 type PathFound struct {

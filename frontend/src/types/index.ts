@@ -23,6 +23,7 @@ export interface WebSocketMessage {
 export interface NodeExploredData {
   level: number;
   node: string;
+  nodesExploredAtLevel?: number;
 }
 
 export interface PathFoundData {
