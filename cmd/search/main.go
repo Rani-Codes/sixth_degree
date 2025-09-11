@@ -38,6 +38,12 @@ func main() {
 	// Works in Docker and also if you ran `npm run build` locally
 	// For everyday coding, use `npm run dev` on 5173 (fast reloads)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Advertise client hints so browsers can send reduced-data preference
+		w.Header().Set("Accept-CH", "Sec-CH-Prefers-Reduced-Data")
+		w.Header().Set("Permissions-Policy", "ch-prefers-reduced-data=(*)")
+		w.Header().Set("Critical-CH", "Sec-CH-Prefers-Reduced-Data")
+		w.Header().Add("Vary", "Sec-CH-Prefers-Reduced-Data")
+
 		// Let API and WS handlers take priority; this catches everything else
 		// Why? Because in Go’s default ServeMux, the most specific pattern wins (/ws before / route)
 		requested := r.URL.Path
