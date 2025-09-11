@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/Rani-Codes/sixth_degree/internal/graph"
 	"github.com/Rani-Codes/sixth_degree/internal/handlers"
@@ -83,6 +84,15 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, g models.Graph) {
 		return
 	}
 	defer conn.Close()
+
+	// Auto-close the ws connection after 15 seconds, lowers P95 and P99 levels and doesnt effect users since every new search closes and reopens the ws connection anyways
+	closeTimer := time.AfterFunc(15*time.Second, func() {
+		_ = conn.WriteControl(websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseNormalClosure, "closing after 15s"),
+			time.Now().Add(1*time.Second))
+		_ = conn.Close()
+	})
+	defer closeTimer.Stop()
 
 	for {
 		var request models.WSRequest
