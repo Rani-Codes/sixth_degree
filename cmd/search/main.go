@@ -86,10 +86,28 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, g models.Graph) {
 			break // If client disconnected or sent invalid JSON -> exit for loop
 		}
 
-		// Collect per-level counts during BFS
+		// Collect per-level nodes and counts; stream one message when a level completes
 		levelCounts := make(map[int]int)
 		nodeLevel := make(map[string]int)
+		currentLevel := 0
+		currentBatch := make([]string, 0)
 		updateCallBack := func(level int, node string) {
+			// If we moved to a new level, flush the previous level's nodes
+			if currentLevel != 0 && level != currentLevel && len(currentBatch) > 0 {
+				_ = conn.WriteJSON(models.WSResponse{
+					Type: "level_explored",
+					Data: models.LevelExplored{
+						Level: currentLevel,
+						Nodes: append([]string(nil), currentBatch...),
+					},
+				})
+				currentBatch = currentBatch[:0]
+			}
+
+			currentLevel = level
+			currentBatch = append(currentBatch, node)
+
+			// Track counts and the first seen level per node
 			levelCounts[level]++
 			if _, ok := nodeLevel[node]; !ok {
 				nodeLevel[node] = level
@@ -105,6 +123,17 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, g models.Graph) {
 			}
 			conn.WriteJSON(response)
 		} else {
+			// Flush the last level batch if any
+			if currentLevel != 0 && len(currentBatch) > 0 {
+				_ = conn.WriteJSON(models.WSResponse{
+					Type: "level_explored",
+					Data: models.LevelExplored{
+						Level: currentLevel,
+						Nodes: append([]string(nil), currentBatch...),
+					},
+				})
+			}
+
 			// Send one summary per level in the final path
 			for i := 0; i < len(path); i++ {
 				node := path[i]

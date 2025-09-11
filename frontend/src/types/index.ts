@@ -16,14 +16,19 @@ export interface Person {
   
   // WebSocket message types matching Go backend WSResponse
 export interface WebSocketMessage {
-  type: 'node_explored' | 'path_found' | 'error';
-  data: NodeExploredData | PathFoundData | string;
+  type: 'node_explored' | 'level_explored' | 'path_found' | 'error';
+  data: NodeExploredData | LevelExploredData | PathFoundData | string;
 }
 
 export interface NodeExploredData {
   level: number;
   node: string;
   nodesExploredAtLevel?: number;
+}
+
+export interface LevelExploredData {
+  level: number;
+  nodes: string[];
 }
 
 export interface PathFoundData {

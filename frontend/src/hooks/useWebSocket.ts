@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { LogMessage, SearchParams, WebSocketMessage, WebSocketRequest, NodeExploredData, PathFoundData } from '../types';
+import { LogMessage, SearchParams, WebSocketMessage, WebSocketRequest, NodeExploredData, PathFoundData, LevelExploredData } from '../types';
 
 export const useWebSocket = () => {
   const [messages, setMessages] = useState<LogMessage[]>([]);
@@ -28,6 +28,13 @@ export const useWebSocket = () => {
           const suffix = typeof count === 'number' ? ` (nodes explored at level: ${count})` : '';
           addLogMessage(`Level ${nodeData.level}: Path node ${nodeData.node}${suffix}`, 'info');
           setExploredNodes(prev => [...prev, nodeData.node]);
+        }
+        break;
+      case 'level_explored':
+        const levelData = data.data as LevelExploredData;
+        if (Array.isArray(levelData.nodes) && levelData.nodes.length > 0) {
+          addLogMessage(`Level ${levelData.level}: explored ${levelData.nodes.length} nodes`, 'info');
+          setExploredNodes(prev => [...prev, ...levelData.nodes]);
         }
         break;
       case 'path_found':

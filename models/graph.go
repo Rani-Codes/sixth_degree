@@ -27,7 +27,7 @@ type WSResponse struct {
 	// This lets us use one response struct for all message types instead of separate structs
 }
 
-// Response payloads
+// Use to fill out search log w nodes explored at said level and final node chosen for path
 type NodeExplored struct {
 	Level                int    `json:"level"`
 	Node                 string `json:"node"`
@@ -37,6 +37,12 @@ type NodeExplored struct {
 type PathFound struct {
 	Path   []string `json:"path"`
 	Length int      `json:"length"`
+}
+
+// Use to create network vis by returning all nodes explored at certain level
+type LevelExplored struct {
+	Level int      `json:"level"`
+	Nodes []string `json:"nodes"`
 }
 
 type Person struct {
