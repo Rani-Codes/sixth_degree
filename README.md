@@ -59,3 +59,6 @@ You may want to use if you run this yourself outside of a docker container.
 - Smaller bottleneck P99 > 1 min
     - After resolving the ws issue I still wasnt satisfied with the P99 of the site so I did some more digging. Apparently on low and mid network connections the api/graph call was the bottleneck taking up to 1 minute to load.
     - Thanks to my previous ws fix I had already created a solution for this. Basically on slower devices I just completely omit the api/graph endpoint from being sent and instead load the network visualization using the responses gathered from ws when it returned all of the nodes exlored at a certain level. This fix reduced the P95 to 15 seconds and P99 to 15 seconds.
+
+### April 2nd 2026 Update
+- Site is now deployed via Digital Ocean since I had some free credits.

@@ -6,7 +6,6 @@ on:
       - 'main'
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -41,17 +40,12 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/sixth_degree:latest
 
-      # --- Authenticate with GCP using Workload Identity Federation ---
-      - name: Authenticate to GCP
-        uses: google-github-actions/auth@v1
+      - name: Install doctl
+      # installs and authenticates doctl using token
+        uses: digitalocean/action-doctl@v2
         with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          token: ${{ secrets.DO_API_TOKEN }}
 
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy ${{ secrets.GCP_RUN_SERVICE }} \
-            --image=${{ secrets.DOCKER_USERNAME }}/sixth_degree:latest \
-            --region=${{ secrets.GCP_REGION }} \
-            --platform=managed \
-            --allow-unauthenticated
+      #pull the latest image from Docker Hub and redeploy
+      - name: Deploy to Digital Ocean App Platform
+        run: doctl apps create-deployment ${{ secrets.DO_APP_ID }} --wait
